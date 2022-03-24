@@ -2,13 +2,14 @@ const core = require("@actions/core");
 const github = require("@actions/github");
 const fetch = require("node-fetch");
 const dayjs = require("dayjs");
+const utc = require("dayjs/plugin/utc");
 const { JiraClient } = require("./jiraClient");
-const { runCommmand } = require("./cmd");
+const { runCommand } = require("./cmd");
 const semver = require("semver");
 const gitRawCommits = require("git-raw-commits");
 const { Writable } = require("stream");
 
-function parseVersion(version) {}
+dayjs.extend(utc);
 
 async function getPreviousVersion(version) {
   tags_out = await runCommand(
@@ -53,13 +54,17 @@ async function run() {
     // const version = core.getInput("version");
     // const context = github.context;
 
-    const account = core.getInput("account");
-    const apiKey = core.getInput("apiKey");
-    const domain = core.getInput("domain");
-    const projectId = core.getInput("projectId");
-    const version = core.getInput("version");
-    const context = github.context;
-
+    const account = "test";
+    const apiKey = "test";
+    const domain = "test";
+    const projectId = "CRM";
+    const version = "0.0.2";
+    const context = {
+      repo: {
+        owner: "rkdrnf",
+        repo: "repo",
+      },
+    };
 
     const jiraClient = new JiraClient(domain, account, apiKey);
 
