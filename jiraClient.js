@@ -1,5 +1,7 @@
+const fetch = require("node-fetch");
+
 function buildAuthHeader(email, key) {
-  return Buffer.from(`${email}:${key}`, "utf-8").toString("base64");
+  return `Basic ${Buffer.from(`${email}:${key}`, "utf-8").toString("base64")}`;
 }
 
 function buildHeaders(account, apiKey) {
@@ -11,7 +13,7 @@ function buildHeaders(account, apiKey) {
 }
 
 function buildRequestUrl(domain, path) {
-  return `https://${domain}.atlassian.net/${path}`;
+  return `https://${domain}.atlassian.net${path}`;
 }
 
 class JiraClient {
@@ -22,25 +24,30 @@ class JiraClient {
   }
 
   async release(params) {
-    // await fetch(buildRequestUrl(domain, "/rest/api/3/version"), {
-    //   method: "POST",
-    //   Headers: buildHeaders(account, apiKey),
-    //   body: JSON.stringify(params),
-    // });
+    return await fetch(buildRequestUrl(this.domain, "/rest/api/3/version"), {
+      method: "POST",
+      headers: buildHeaders(this.account, this.apiKey),
+      body: JSON.stringify(params),
+    });
   }
 
   async updateFixVersions(issueKey, version) {
-    // const body = {
-    //   fields: {
-    //     fixVersions: [{ add: { name: version } }],
-    //   },
-    // };
+    const body = {
+      update: {
+        fixVersions: [{ add: { name: version } }],
+      },
+    };
 
-    // await fetch(buildRequestUrl(domain, `/rest/api/3/issue/${issueKey}`), {
-    //   method: "PUT",
-    //   Headers: buildHeaders(account, apiKey),
-    //   body: JSON.stringify(body),
-    // });
+    const res = await fetch(
+      buildRequestUrl(this.domain, `/rest/api/3/issue/${issueKey}`),
+      {
+        method: "PUT",
+        headers: buildHeaders(this.account, this.apiKey),
+        body: JSON.stringify(body),
+      }
+    );
+
+    console.log(res);
   }
 }
 

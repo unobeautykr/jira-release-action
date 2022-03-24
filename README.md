@@ -6,5 +6,8 @@
   with:
     account: user@example.com
     apiKey: API_KEY_FROM_SECRETS
-    version: "proj-v3.0.5" 
+    domain: unocare
+    projectId: 12345
+    projectKey: CRM
+    version: "v3.0.5" 
 ```
