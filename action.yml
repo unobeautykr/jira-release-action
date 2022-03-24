@@ -1,0 +1,22 @@
+# action.yml
+name: "Create JIRA Release"
+description: "Create a release in JIRA"
+inputs:
+  domain:
+    description: "JIRA domain name for a company"
+    required: true
+  projectId:
+    description: "JIRA project id"
+    required: true
+  account:
+    description: "JIRA email account"
+    required: true
+  apiKey:
+    description: "JIRA API key"
+    required: true
+  version:
+    description: "Version name"
+    required: true
+runs:
+  using: "node12"
+  main: "dist/index.js"
