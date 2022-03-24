@@ -30,19 +30,45 @@ async function getPreviousVersion(version) {
   return null;
 }
 
-function updateFixVersions(from, to) {
-  const readable = gitRawCommits({
-    from,
-    to,
+async function getChanges(from, to) {
+  return new Promise((resolve, reject) => {
+    const commits = [];
+    const readable = gitRawCommits({
+      from,
+      to,
+    });
+    readable.on("error", (e) => {
+      reject(e);
+    });
+
+    const writable = new Writable();
+    writable._write = function (chunk, encoding, done) {
+      console.log(encoding);
+      commits.push(chunk.toString());
+      done();
+    };
+    writable.on("end", () => {
+      resolve(commits);
+    });
+    writable.on("error", (e) => {
+      reject(e);
+    });
+
+    readable.pipe(writable);
   });
+}
 
-  const writable = new WritableStream();
-  writable._write = function (chunk, encoding, done) {
-    console.log(chunk.toString());
-    done();
-  };
+function getResolvedIssues() {
+  const resolvedIssues = new Set();
+  for (const change of changes) {
+    const issueIdRegEx = new RegExp(`${projectKey}-([0-9]+)`, "g");
 
-  readable.pipe(writable);
+    change.match(issueIdRegEx).forEach((issueKey) => {
+      resolvedIssues.add(issueKey);
+    });
+  }
+
+  return resolvedIssues;
 }
 
 async function run() {
@@ -51,14 +77,16 @@ async function run() {
     // const apiKey = core.getInput("apiKey");
     // const domain = core.getInput("domain");
     // const projectId = core.getInput("projectId");
+    // const projectKey = core.getInput("projectKey");
     // const version = core.getInput("version");
     // const context = github.context;
 
     const account = "test";
     const apiKey = "test";
     const domain = "test";
-    const projectId = "CRM";
-    const version = "0.0.2";
+    const projectKey = "CRM";
+    const projectId = "00123";
+    const version = "v0.0.2";
     const context = {
       repo: {
         owner: "rkdrnf",
@@ -68,18 +96,29 @@ async function run() {
 
     const jiraClient = new JiraClient(domain, account, apiKey);
 
+    const jiraVersionName =`${context.repo.repo}/version`; 
+
     await jiraClient.release({
       archived: false,
       releaseDate: dayjs.utc().format("YYYY-MM-DD"),
-      name: `${context.repo.repo}/version`,
+      name: jiraVersionName,
       description: `Version created by github action. https://github.com/${context.repo.owner}/${context.repo.repo}/releases/tag/${version}`,
       projectId: projectId,
       released: true,
     });
 
-    const previousVersion = getPreviousVersion();
+    const previousVersion = await getPreviousVersion(version);
 
-    updateFixVersions(previousVersion, version);
+    console.log(`Prev version ${previousVersion} found`);
+
+    const changes = await getChanges(previousVersion, version);
+    console.log(changes);
+    const resolvedIssues = getResolvedIssues();
+    console.log(resolvedIssues);
+
+    for (const issue of resolvedIssues) {
+      await jiraClient.updateFixVersions(issue, jiraVersionName)
+    }
   } catch (error) {
     core.setFailed(error.message);
   }

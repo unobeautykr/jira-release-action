@@ -28,6 +28,20 @@ class JiraClient {
     //   body: JSON.stringify(params),
     // });
   }
+
+  async updateFixVersions(issueKey, version) {
+    // const body = {
+    //   fields: {
+    //     fixVersions: [{ add: { name: version } }],
+    //   },
+    // };
+
+    // await fetch(buildRequestUrl(domain, `/rest/api/3/issue/${issueKey}`), {
+    //   method: "PUT",
+    //   Headers: buildHeaders(account, apiKey),
+    //   body: JSON.stringify(body),
+    // });
+  }
 }
 
 module.exports = { JiraClient };
