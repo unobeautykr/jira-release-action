@@ -90,7 +90,7 @@ module.exports = async function release({
     name: jiraVersionName,
     description: `Version created by github action. https://github.com/${context.repo.owner}/${context.repo.repo}/releases/tag/${version}`,
     projectId: projectId,
-    released: true,
+    released: false,
   });
 
   if (!res.ok) {
