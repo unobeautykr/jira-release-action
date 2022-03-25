@@ -2,7 +2,7 @@
 
 ```
 - name: Create release in jira
-  uses: unobeautykr/jira-release-action@v1.0.0
+  uses: unobeautykr/jira-release-action@v1.0.2
   with:
     account: user@example.com
     apiKey: API_KEY_FROM_SECRETS
