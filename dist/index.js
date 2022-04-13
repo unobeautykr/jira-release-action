@@ -16195,9 +16195,13 @@ function getResolvedIssues(changes, projectKey) {
   for (const change of changes) {
     const issueIdRegEx = new RegExp(`${projectKey}-([0-9]+)`, "g");
 
-    change.match(issueIdRegEx).forEach((issueKey) => {
-      resolvedIssues.add(issueKey);
-    });
+    matches = change.match(issueIdRegEx);
+
+    if (matches) {
+      matches.forEach((issueKey) => {
+        resolvedIssues.add(issueKey);
+      });
+    }
   }
 
   return resolvedIssues;
